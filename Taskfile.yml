@@ -1,0 +1,51 @@
+version: '3'
+
+env:
+  PROJECT_NAME: my-project
+
+tasks:
+  status:
+    desc: Checks whether all dependencies are installed
+    status:
+      - which zip
+      - which xdg-open
+
+  export:
+    aliases:
+      - e
+    desc: Bundles the add-on if not already and imports it into Minecraft
+    cmds:
+      - task: build
+      - xdg-open "{{.PROJECT_NAME}}.mcaddon"
+
+  init:
+    desc: Initialize a new Minecraft add-on
+    status:
+      - test -d BP
+      - test -d RP
+      - test -d SP
+      - test -d WT
+      - test -f src/manifest.json
+    cmds:
+      - mkdir -p BP
+      - mkdir -p RP
+      - mkdir -p SP
+      - mkdir -p WT
+      - touch BP/manifest.json
+      - touch RP/manifest.json
+      - touch SP/manifest.json
+      - touch WT/manifest.json
+
+  build:
+    aliases:
+      - b
+    desc: Bundles the add-ons to a `.mcaddon` file
+    cmds:
+      - mkdir -p "$PROJECT_NAME"
+      - cp -r BP "$PROJECT_NAME"
+      - cp -r RP "$PROJECT_NAME"
+      - cp -r SP "$PROJECT_NAME"
+      - cp -r WT "$PROJECT_NAME"
+      - zip -rq "$PROJECT_NAME.mcaddon" "$PROJECT_NAME" BP RP SP WT
+      - rm -r "$PROJECT_NAME"
+
